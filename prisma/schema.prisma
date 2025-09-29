@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int       @id @default(autoincrement())
+  email      String    @unique
+  name       String?
+  createdAt  DateTime  @default(now()) @db.Timestamptz(6) 
+  googleId   String    @unique
+
+  // One user can have many tickets
+  tickets    Ticket[]
+
+  //one user can add many Reviews
+  Reviews Review[]
+}
+
+model Event {
+  id                 Int       @id @default(autoincrement())
+  eventName          String    @unique
+  eventDescription   String?
+  eventLocation      String?
+  eventDateAndTime   DateTime @db.Timestamptz(6) 
+  availableSeats     Int
+  bookedSeats        Int
+  ticketPrices       Float
+  createdAt          DateTime  @default(now()) @db.Timestamptz(6) 
+  updatedAt          DateTime  @updatedAt @db.Timestamptz(6) 
+  EventDuration      Int?  //save in minutes
+  EventCategory    String?
+  imageUrl String?
+
+  // One event has many tickets
+  tickets            Ticket[]
+
+  //one event can have multiple Reviews
+  Reviews Review[]
+}
+
+model QRCode {
+  id       Int      @id @default(autoincrement())
+  size     Int?
+  url      String?
+  tokenId  String @unique
+  createdAt          DateTime  @default(now()) @db.Timestamptz(6) 
+  updatedAt          DateTime  @updatedAt @db.Timestamptz(6) 
+
+  // One QRCode can belong to one Ticket (1-1)
+  ticket   Ticket?
+}
+
+model Ticket {
+  id        Int      @id @default(autoincrement())
+  createdAt          DateTime  @default(now()) @db.Timestamptz(6) 
+  updatedAt          DateTime  @updatedAt @db.Timestamptz(6) 
+
+  // Foreign keys many to one
+  eventId   Int
+  userId    Int
+
+  price Float?
+
+  // Foreign keys one to one
+  qrCodeId  Int @unique
+
+  // Relations
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  qrCode    QRCode?  @relation(fields: [qrCodeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Review{
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now()) @db.Timestamptz(6) 
+  updatedAt DateTime @updatedAt @db.Timestamptz(6) 
+
+  //Foreign key
+  userId Int
+  user User @relation(fields:[userId], references:[id], onDelete:Cascade, onUpdate:Cascade )
+  
+  eventId Int
+  event Event @relation(fields:[eventId], references:[id],onDelete:Cascade, onUpdate:Cascade)
+  
+}
