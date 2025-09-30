@@ -4,6 +4,14 @@ const routes = require("./src/routes"); // central router
 const passport = require("passport");
 const cors = require('cors');
 
+const {
+  GOOGLE_CLIENT_ID,
+  GOOGLE_CLIENT_SECRET,
+  API_BASE_URL,
+  FrontEnd_URL,
+  GOOGLE_CALLBACK_URL,
+} = process.env;
+
 require("dotenv").config();
 const session = require("express-session");
 
@@ -49,6 +57,7 @@ process.on("SIGINT", async () => {
   process.exit(0);
 });
 
+console.log(GOOGLE_CALLBACK_URL)
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`API running on http://localhost:${PORT}`);
