@@ -4,6 +4,8 @@ const routes = require("./src/routes"); // central router
 const passport = require("passport");
 const cors = require('cors');
 
+require("dotenv").config();
+
 const {
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
@@ -12,7 +14,12 @@ const {
   GOOGLE_CALLBACK_URL, DATABASE_URL,
 } = process.env;
 
-require("dotenv").config();
+const FRONTENDS = [
+  process.env.NEXT_PUBLIC_API_URL, // your deployed frontend origin
+  "http://localhost:3000",         // local dev fallback
+].filter(Boolean);
+
+
 const session = require("express-session");
 
 const app = express();
@@ -20,8 +27,13 @@ const app = express();
  const URL  = process.env.FrontEnd_URL  || 'http://localhost:3000';
 app.use(
   cors({
-    origin: 'http://localhost:3000', // ✅ Frontend origin
-    credentials: true,              // ✅ Allow cookies
+    origin(origin, cb) {
+      // allow same-origin and non-browser requests (no Origin header)
+      if (!origin) return cb(null, true);
+      if (FRONTENDS.includes(origin)) return cb(null, true);
+      return cb(new Error(`CORS not allowed for origin: ${origin}`));
+    },
+    credentials: true,
   })
 );
 const prisma = new PrismaClient();
