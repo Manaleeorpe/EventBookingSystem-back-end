@@ -15,7 +15,7 @@ const {
 } = process.env;
 
 const FRONTENDS = [
-  process.env.FrontEnd_URL, // your deployed frontend origin
+  FrontEnd_URL, // your deployed frontend origin
   "http://localhost:3000",         // local dev fallback
 ].filter(Boolean);
 
@@ -74,6 +74,7 @@ console.log(GOOGLE_CLIENT_SECRET)
 console.log(GOOGLE_CLIENT_ID)
 console.log(API_BASE_URL)
 console.log(DATABASE_URL)
+console.log(FrontEnd_URL)
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
