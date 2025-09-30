@@ -9,7 +9,7 @@ const {
   GOOGLE_CLIENT_SECRET,
   API_BASE_URL,
   FrontEnd_URL,
-  GOOGLE_CALLBACK_URL,
+  GOOGLE_CALLBACK_URL, DATABASE_URL,
 } = process.env;
 
 require("dotenv").config();
@@ -58,6 +58,11 @@ process.on("SIGINT", async () => {
 });
 
 console.log(GOOGLE_CALLBACK_URL)
+console.log(GOOGLE_CLIENT_SECRET)
+console.log(GOOGLE_CLIENT_ID)
+console.log(API_BASE_URL)
+console.log(DATABASE_URL)
+
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`API running on http://localhost:${PORT}`);
