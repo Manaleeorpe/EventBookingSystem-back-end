@@ -15,7 +15,7 @@ const {
 } = process.env;
 
 const FRONTENDS = [
-  process.env.NEXT_PUBLIC_API_URL, // your deployed frontend origin
+  process.env.FrontEnd_URL, // your deployed frontend origin
   "http://localhost:3000",         // local dev fallback
 ].filter(Boolean);
 
