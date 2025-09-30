@@ -15,7 +15,7 @@ const {
 } = process.env;
 
 const FRONTENDS = [
-  FrontEnd_URL, // your deployed frontend origin
+  "https://eventbookingsystem-front-end-production.up.railway.app", // your deployed frontend origin
   "http://localhost:3000",         // local dev fallback
 ].filter(Boolean);
 
