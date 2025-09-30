@@ -56,7 +56,9 @@ passport.use(
         //
           // Example shape expected by serializeUser:
     
-        const user = await service.CreateUserByOAuth({email, name, googleId});
+        const user = await service.CreateUserByOAuth({ email, name, googleId });
+        
+        console.log(GOOGLE_CALLBACK_URL)
 
         return done(null, user);
       } catch (err) {
