@@ -193,7 +193,7 @@ async function scanTicket(req, res, next) {
       const eventDate = new Date(ticket.event.eventDateAndTime); // stored as UTC in DB
       const HalfEventDuration = ticket.event.EventDuration / 2;
       const ValidTill = new Date(eventDate.getTime() + HalfEventDuration * 60 * 1000); 
-    
+    //console.log(ticket)
     const now = new Date();
      
     const diffHours = (eventDate - now) / (1000 * 60 * 60);
@@ -203,10 +203,19 @@ async function scanTicket(req, res, next) {
       if (!Qcode) {
         return res.status(400).json({ error: "Qcode does not exist" });
       }
+      if (ticket.IsScanned) {
+        
+         return res.status(400).json({ error: "Ticket already scanned once" });
+      }
+      await service.scanTicket(ticket.id)
+      
+
       return res.json({ valid: true, message: "Ticket scanned successfully" });
+    }else {
+    return res.status(403).json({ error: "Scanning not allowed at this time" });
     }
-    return res.json({ valid: false, message: "Ticket not valid at this time" });
-  } catch (err) {
+  }
+  catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });
   }

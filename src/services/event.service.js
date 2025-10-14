@@ -50,7 +50,7 @@ async function updateEvent(id, { eventName, eventDescription, eventLocation, eve
   if (eventName) {
     const existing = await eventRepo.findByEventName(eventName);
     if (existing && existing.id !== id) {
-      const err = new Error("Email already exists");
+      const err = new Error("Event already exists");
       err.status = 409;
       throw err;
     }

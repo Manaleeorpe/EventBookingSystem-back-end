@@ -14,6 +14,10 @@ async function create(data) {
 }
 
 
+async function updateById(id, data) {
+  return prisma.ticket.update({ where: { id }, data });
+}
+
 //get user tickets
 
 
@@ -82,5 +86,5 @@ async function findByTokenId(eventTokenId) {
 
 
 module.exports = {
-    create, prisma,findById,findByTokenId,findByQRcodeId,getUserTickets,
+    create, prisma,findById,findByTokenId,findByQRcodeId,getUserTickets,updateById,
 }

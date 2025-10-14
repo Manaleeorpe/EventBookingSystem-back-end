@@ -67,6 +67,8 @@ model Ticket {
 
   price Float?
 
+  IsScanned Boolean  @default(false)
+
   // Foreign keys one to one
   qrCodeId  Int @unique
 

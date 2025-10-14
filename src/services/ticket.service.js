@@ -69,6 +69,20 @@ async function getTicketByToken(tokenId) {
 
 }
 
+
+async function scanTicket(id) {
+    if (id) {
+        const existing = await ticketRepo.findById(id);
+        if (!existing) {
+          const err = new Error("Ticket does not exist");
+          err.status = 409;
+          throw err;
+        }
+      }
+      return ticketRepo.updateById(id, { IsScanned:true });
+    
+    
+}
 module.exports = {
-  createTicket, getTicket,getTicketByToken,getUserTickets,
+  createTicket, getTicket,getTicketByToken,getUserTickets,scanTicket,
 };
