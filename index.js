@@ -41,19 +41,23 @@ const prisma = new PrismaClient();
 app.use(express.json());
 
 // 1) Enable cookie-based sessions (required if you want login to persist)
+const isProd = process.env.NODE_ENV === "production";
+
 app.use(
   session({
+    name: "session-name",
     secret: process.env.SESSION_SECRET || "your-secret-key",
     resave: false,
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      // secure: true,      // enable in production with HTTPS
-      // sameSite: "lax",   // adjust for cross-site frontends
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      secure: isProd,                 // ✅ REQUIRED in prod
+      sameSite: isProd ? "none" : "lax", // ✅ CRITICAL
     },
   })
 );
+
 // 2) Initialize Passport and hook it into sessions
 app.use(passport.initialize());
 app.use(passport.session());
