@@ -1,86 +1,67 @@
 const express = require("express");
-const { PrismaClient } = require("./generated/prisma");
-const routes = require("./src/routes"); // central router
+const session = require("express-session");
 const passport = require("passport");
-const cors = require('cors');
-
+const cors = require("cors");
 require("dotenv").config();
 
-const {
-  GOOGLE_CLIENT_ID,
-  GOOGLE_CLIENT_SECRET,
-  API_BASE_URL,
-  FrontEnd_URL,
-  GOOGLE_CALLBACK_URL, DATABASE_URL,
-} = process.env;
-
-const FRONTENDS = [
-  "https://eventbookingsystem-front-end-production.up.railway.app", // your deployed frontend origin
-  "http://localhost:3000",         // local dev fallback
-].filter(Boolean);
-
-
-const session = require("express-session");
-
 const app = express();
+const isProd = process.env.NODE_ENV === "production";
 
- const URL  = process.env.FrontEnd_URL  || 'http://localhost:3000';
+// -------------------- CORS --------------------
+const FRONTENDS = [
+  "https://eventbookingsystem-front-end-production.up.railway.app",
+  "http://localhost:3000",
+];
+
 app.use(
   cors({
     origin(origin, cb) {
-      // allow same-origin and non-browser requests (no Origin header)
       if (!origin) return cb(null, true);
       if (FRONTENDS.includes(origin)) return cb(null, true);
-      return cb(new Error(`CORS not allowed for origin: ${origin}`));
+      return cb(new Error("CORS blocked"));
     },
     credentials: true,
   })
 );
-const prisma = new PrismaClient();
 
+// -------------------- BODY --------------------
 app.use(express.json());
 
-// 1) Enable cookie-based sessions (required if you want login to persist)
-const isProd = process.env.NODE_ENV === "production";
+// -------------------- TRUST PROXY (CRITICAL FOR PROD) --------------------
+if (isProd) {
+  app.set("trust proxy", 1);
+}
 
+// -------------------- SESSION --------------------
 app.use(
   session({
-    name: "session-name",
-    secret: process.env.SESSION_SECRET || "your-secret-key",
+    // 🔐 DEFAULT cookie name = connect.sid
+    secret: process.env.SESSION_SECRET,
+
     resave: false,
     saveUninitialized: false,
+
+    proxy: isProd,
+
     cookie: {
       httpOnly: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      secure: isProd,                 // ✅ REQUIRED in prod
-      sameSite: isProd ? "none" : "lax", // ✅ CRITICAL
+      secure: isProd,                   // HTTPS only in prod
+      sameSite: isProd ? "none" : "lax", // cross-site frontend
+      maxAge: 7 * 24 * 60 * 60 * 1000,   // 7 days
     },
   })
 );
 
-// 2) Initialize Passport and hook it into sessions
+// -------------------- PASSPORT --------------------
 app.use(passport.initialize());
 app.use(passport.session());
 
+// -------------------- ROUTES --------------------
+const routes = require("./src/routes");
+app.use("/", routes);
 
-
-// mount all feature routers under a base path
-app.use("/", routes); // or app.use("/api", routes)
-
-// graceful shutdown
-process.on("SIGINT", async () => {
-  await prisma.$disconnect();
-  process.exit(0);
-});
-
-console.log(GOOGLE_CALLBACK_URL)
-console.log(GOOGLE_CLIENT_SECRET)
-console.log(GOOGLE_CLIENT_ID)
-console.log(API_BASE_URL)
-console.log(DATABASE_URL)
-console.log(FrontEnd_URL)
-
+// -------------------- SERVER --------------------
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-  console.log(`API running on http://localhost:${PORT}`);
+  console.log(`API running on port ${PORT}`);
 });
